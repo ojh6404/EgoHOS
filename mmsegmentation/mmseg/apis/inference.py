@@ -67,7 +67,7 @@ class LoadImage:
         return results
 
 
-def inference_segmentor(model, img):
+def inference_segmentor(model, img, twohands_mask=None, contact_mask=None):
     """Inference image(s) with the segmentor.
 
     Args:
@@ -96,10 +96,13 @@ def inference_segmentor(model, img):
     if 'additional_channel' in cfg.keys():
         data['img_metas'][0][0]['additional_channel'] = cfg['additional_channel']
     if 'twohands_dir' in cfg.keys():
-        data['img_metas'][0][0]['twohands_dir'] = cfg['twohands_dir']
+        assert twohands_mask is not None
+        data['img_metas'][0][0]['twohands_mask'] = twohands_mask
     if 'cb_dir' in cfg.keys():
         data['img_metas'][0][0]['cb_dir'] = cfg['cb_dir']
-    
+        assert contact_mask is not None
+        data['img_metas'][0][0]['cb_mask'] = contact_mask
+
     # forward the model
     with torch.no_grad():
         result = model(return_loss=False, rescale=True, **data)
